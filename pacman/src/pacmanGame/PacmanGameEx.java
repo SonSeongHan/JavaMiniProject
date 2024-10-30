@@ -3,7 +3,7 @@ package pacmanGame;
 // 스윙 GUI를 이용하기 위한 패키지 import
 import javax.swing.*;
 
-// JFrame을 이용한 맵 구성
+// JFrame을 이용한 맵 구성	
 public class PacmanGameEx extends JFrame {
 
 	// 게임 패널을 담기 위한 변수 생성

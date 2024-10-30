@@ -16,7 +16,7 @@ class GamePanel extends JPanel implements ActionListener {
 	private Timer pacmanTimer;
 	private Pacman pacman; // 팩맨 객체
 	private GameMap gameMap; // 게임 맵
-	private GamePanel gamePanel;
+//	private GamePanel gamePanel;
 	private Image heart;
 	private boolean pacmanMoved = false; // 팩맨 이동 여부
 

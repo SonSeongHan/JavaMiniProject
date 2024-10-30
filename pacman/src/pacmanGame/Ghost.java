@@ -11,10 +11,10 @@ class Ghost {
 
 	private int x;
 	private int y;
+	private int moveCount = 0; // 주기적 방향 전환
 	private Image image; // 적 이미지
 	private GameMap gameMap; // 맵 흐르에 따른 변화 감지
-	private String lastPosition = ""; // 마지막 위치 -> 백스텝 방지용
-	private int moveCount = 0; // 주기적 방향 전환
+	private String lastPosition = ""; // 마지막 위치 -> 백스텝 방지용	
 
 	// 생성자
 	public Ghost(int startX, int startY, GameMap gameMap) {

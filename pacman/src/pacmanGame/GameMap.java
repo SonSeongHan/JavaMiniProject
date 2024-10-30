@@ -94,7 +94,7 @@ public class GameMap {
 					specialImage.paintIcon(null, g, x * 40, y * 40);
 					break;
 				}
-
+				
 		}
 	}
 
