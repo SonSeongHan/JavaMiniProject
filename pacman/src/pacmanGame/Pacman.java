@@ -107,6 +107,7 @@ public class Pacman {
 
 			// GameMap에서 코인 수집 여부 확인
 			if (gameMap.collectCoin(x, y)) {
+				// 24.10.30.14:40 손성한
 				gamePanel.incrementScore();
 			}
 			gamePanel.update(); // update 메서드 호출

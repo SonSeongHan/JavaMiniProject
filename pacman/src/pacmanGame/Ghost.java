@@ -33,7 +33,7 @@ class Ghost {
 		g.drawImage(image, x * 40, y * 40, 40, 40, null); // x, y 좌표에 이미지 그리기
 	}
 
-	// 적 위치 반환
+	// 유령 위치 반환
 	public Point getPosition() {
 		return new Point(x, y);
 	}

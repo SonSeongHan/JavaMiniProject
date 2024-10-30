@@ -129,9 +129,9 @@ class GamePanel extends JPanel implements ActionListener {
 			}
 		}
 
-		if (gameMap.collectCoin(pacman.getX(), pacman.getY())) {
-			score++;
-		}
+//		if (gameMap.collectCoin(pacman.getX(), pacman.getY())) {
+//			score++;
+//		}
 
 		if (gameMap.allCoinsCollected()) {
 			gameClear = true;
@@ -139,6 +139,7 @@ class GamePanel extends JPanel implements ActionListener {
 
 	}
 
+	// 24.10.30.14:40 손성한
 	// 점수 증가 메소드
 	public void incrementScore() {
 		score++;
@@ -159,10 +160,16 @@ class GamePanel extends JPanel implements ActionListener {
 	public void startSpecialEffect() {
 		specialActive = true; // 스페셜 효과 활성화
 		time = 5;
+
+		// 24.10.30.14:45
+		// 코인 획득 시 유령 속도 감소 추가
+		ghostTimer.setDelay(500);
+
 		specialTimer = new Timer(1000, e -> {
 			time--;
 			if (time <= 0) {
 				specialActive = false; // 효과 종료
+				ghostTimer.setDelay(180);
 				specialTimer.stop(); // 타이머 정지
 			}
 			repaint();
