@@ -106,8 +106,10 @@ public class Pacman {
 			y = newY;
 
 			// GameMap에서 코인 수집 여부 확인
-			if (gameMap.collectCoin(x, y))
-				gamePanel.update(); // update 메서드 호출
+			if (gameMap.collectCoin(x, y)) {
+				gamePanel.incrementScore();
+			}
+			gamePanel.update(); // update 메서드 호출
 		}
 	}
 

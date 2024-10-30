@@ -46,7 +46,7 @@ class GamePanel extends JPanel implements ActionListener {
 		ghosts.add(new Ghost(1, 12, gameMap));
 
 		// 팩맨, 유령 속도 따로 분리
-		pacmanTimer = new Timer(100, e -> {
+		pacmanTimer = new Timer(150, e -> {
 			pacman.move();
 			pacmanMoved = true;
 			update();
@@ -54,7 +54,7 @@ class GamePanel extends JPanel implements ActionListener {
 		});
 		pacmanTimer.start();
 
-		ghostTimer = new Timer(200, e -> {
+		ghostTimer = new Timer(180, e -> {
 			for (Ghost ghost : ghosts) {
 				ghost.move();
 			}
@@ -128,16 +128,21 @@ class GamePanel extends JPanel implements ActionListener {
 				break;
 			}
 		}
-		System.out.println("Tile Value at Pacman's Position: " + gameMap.getTile(pacman.getX(), pacman.getY()));
+
 		if (gameMap.collectCoin(pacman.getX(), pacman.getY())) {
 			score++;
-			System.out.println("Score : " + score);
 		}
 
 		if (gameMap.allCoinsCollected()) {
 			gameClear = true;
 		}
 
+	}
+
+	// 점수 증가 메소드
+	public void incrementScore() {
+		score++;
+		repaint();
 	}
 
 	public void update() {
