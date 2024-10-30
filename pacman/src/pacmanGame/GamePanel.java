@@ -15,11 +15,15 @@ class GamePanel extends JPanel implements ActionListener {
 	private Timer ghostTimer;
 	private Timer pacmanTimer;
 	private Pacman pacman; // 팩맨 객체
-	private Ghost ghost; // 적 객체
 	private GameMap gameMap; // 게임 맵
 	private GamePanel gamePanel;
 	private Image heart;
+	private boolean pacmanMoved = false; // 팩맨 이동 여부
+
+	// 게임 문구
 	private boolean gameOver = false; // 아직 게임 오버는 아니니까 false
+	private boolean gameClear = false; // 게임 클리어 상태 추가 -> 아직은 false
+	private boolean gameStarted = false; // 게임 시작 여부 추가
 
 	// special 아이템 먹었을 시 특수 효과
 	private boolean specialActive = false;
@@ -44,6 +48,7 @@ class GamePanel extends JPanel implements ActionListener {
 		// 팩맨, 유령 속도 따로 분리
 		pacmanTimer = new Timer(100, e -> {
 			pacman.move();
+			pacmanMoved = true;
 			update();
 			repaint();
 		});
@@ -60,33 +65,104 @@ class GamePanel extends JPanel implements ActionListener {
 		// 키 입력 리스너
 		addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) { // 키가 눌렸을 때
-				pacman.handleKeyPress(e);
+
+				// 스페이스바로 게임 시작
+				if (!gameStarted && e.getKeyCode() == KeyEvent.VK_SPACE) {
+					gameStarted = true;
+					pacmanTimer.start();
+					ghostTimer.start();
+				}
+				if (gameStarted) {
+					pacman.handleKeyPress(e);
+
+					pacman.handleKeyPress(e);
+					if (gameMap.collectSpecial(pacman.getX(), pacman.getY())) {
+						startSpecialEffect();
+					}
+				}
 			}
 		});
 
-		// 게임 스레드 시작
-		GameThread gameThread = new GameThread(this); // 게임 스레드 객체
-		new Thread(gameThread).start(); // 새로운 스레드에서 게임 실행
+//		// 게임 스레드 시작
+		// 더 프레임이 끊겨서 타이머로 함
+//		GameThread gameThread = new GameThread(this); // 게임 스레드 객체
+//		new Thread(gameThread).start(); // 새로운 스레드에서 게임 실행
 
 		// 생명 이미지 가져오기
 		loadHeartImage();
 	}
 
-	// 팩맨과 유령 충돌 체크
+//	// 스페셜 아이템 근처에 있어도 먹는 메소드
+//	private boolean isNearSpecial(int x, int y) {
+//		for (int i = 0; i < gameMap.getHeight(); i++) {
+//			for (int j = 0; j < gameMap.getWidth(); j++) {
+//				if (gameMap.getTile(j, i) == 3) {
+//					if (Math.abs(x - j) < i && Math.abs(y - i) < 1) {
+//						gameMap.collectSpecial(j, i);
+//						return true;
+//					}
+//				}
+//			}
+//		}
+//		return false;
+//	}
+
+	// 팩맨의 충돌 (유령, 코인)
 	private void checkCollision() {
-		for (Ghost ghost : ghosts) {
+//		// 팩맨 위치 확인
+//		System.out.println("Pacman Position: " + pacman.getX() + ", " + pacman.getY());
+		for (int i = 0; i < ghosts.size(); i++) {
+			Ghost ghost = ghosts.get(i);
 			if (pacman.getX() == ghost.getX() && pacman.getY() == ghost.getY()) {
-				lives--;
-				pacman.resetPosition();
-
-				if (lives <= 0)
-
-				{
-					gameOver = true;
+				// 스페셜 효과 on -> 유령 제거
+				if (specialActive) {
+					ghosts.remove(i);
+					i--;
+				} else {
+					lives--;
+					pacman.resetPosition();
+					if (lives <= 0) {
+						gameOver = true;
+					}
 				}
 				break;
 			}
 		}
+		System.out.println("Tile Value at Pacman's Position: " + gameMap.getTile(pacman.getX(), pacman.getY()));
+		if (gameMap.collectCoin(pacman.getX(), pacman.getY())) {
+			score++;
+			System.out.println("Score : " + score);
+		}
+
+		if (gameMap.allCoinsCollected()) {
+			gameClear = true;
+		}
+
+	}
+
+	public void update() {
+		if (!gameOver && !gameClear) {
+			if (pacmanMoved) {
+				checkCollision();
+				pacmanMoved = false;
+			}
+			repaint();
+		}
+	}
+
+	// 스페셜 아이템 먹었을 시 시작
+	public void startSpecialEffect() {
+		specialActive = true; // 스페셜 효과 활성화
+		time = 5;
+		specialTimer = new Timer(1000, e -> {
+			time--;
+			if (time <= 0) {
+				specialActive = false; // 효과 종료
+				specialTimer.stop(); // 타이머 정지
+			}
+			repaint();
+		});
+		specialTimer.start();
 	}
 
 	// 하트 사진 가져오기
@@ -99,21 +175,33 @@ class GamePanel extends JPanel implements ActionListener {
 
 	}
 
-	public void update() {
-		if (!gameOver) {
-			score++;
-			checkCollision();
-			repaint();
-		}
-	}
-
-
-
 	// 팩맨과 적 그리기 + map 그리기 추가
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g); // 부모 클래스의 paintComponent 호출
-		if (gameOver) {
+		if (!gameStarted) { // 게임이 시작되지 않았을 때
+
+			gameMap.draw(g);
+			g.setColor(new Color(0, 0, 0, 128));
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", Font.PLAIN, 30));
+			String startText = "Press Spacebar Key";
+			FontMetrics metrics = g.getFontMetrics();
+			int x = (getWidth() - metrics.stringWidth(startText)) / 2;
+			int y = getHeight() / 3;
+			g.drawString(startText, x, y);
+		} else if (gameClear) {
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", Font.BOLD, 50));
+			String gameClearText = "GAME CLEAR";
+			FontMetrics metrics = g.getFontMetrics();
+			int x = (getWidth() - metrics.stringWidth(gameClearText)) / 2; // 가운데 정렬
+			int y = getHeight() / 2;
+			g.drawString(gameClearText, x, y);
+		} else if (gameOver) {
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, getWidth(), getHeight()); // 검은 배경
 			g.setColor(Color.RED);
@@ -133,7 +221,7 @@ class GamePanel extends JPanel implements ActionListener {
 			// 게임 정보 UI 표시
 			g.setColor(Color.BLACK);
 			g.drawString("Score : " + score, 650, 20);
-			g.drawString("Time : " + time, 650, 50);
+			g.drawString("Time : " + (specialActive ? time : 0), 650, 50);
 			g.drawString("Lives ", 650, 80);
 			for (int i = 0; i < lives; i++) {
 				g.drawImage(heart, 650 + (i * 25), +90, 20, 20, null);
