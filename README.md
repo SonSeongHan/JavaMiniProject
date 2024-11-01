@@ -169,7 +169,7 @@
   
 ---
 ## 클래스 UML
-![Pacman_UML(Class)](https://github.com/user-attachments/assets/0b2be6a4-f7a6-4978-86f0-a1db4a22115b)
+![Pacman_UML(Class)](https://github.com/user-attachments/assets/4f224458-30a1-4824-a5e5-fef99a1cd162)
 
 ---
 ## 게임 화면
