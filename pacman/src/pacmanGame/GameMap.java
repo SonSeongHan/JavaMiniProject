@@ -11,7 +11,7 @@ public class GameMap {
 
 	// 맵 구조
 	// 1 - 벽, 2 - 길, 2 - coin, 3 - special
-	private final int[][] map;
+	private int[][] map;
 	private ImageIcon wallImage;
 	private ImageIcon roadImage;
 	private ImageIcon coinImage;
@@ -43,11 +43,48 @@ public class GameMap {
 		Random random = new Random();
 		int count = 0;
 
-		while (count < 3) {
+		while (count < 2) {
 			int randomX = random.nextInt(map.length);
 			int randomY = random.nextInt(map[0].length);
 
 			// 타일이 2인 경우에만 3으로 변경
+			if (map[randomX][randomY] == 2) {
+				map[randomX][randomY] = 3;
+				count++;
+			}
+		}
+	}
+
+	// 24.11.01
+	// 재시작시 맵 초기화
+	public void resetMap() {
+		map = new int[][] { { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+				{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 1 }, { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1 },
+				{ 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1 }, { 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1 },
+				{ 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, { 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1 },
+				{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, { 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1 },
+				{ 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1 }, { 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 },
+				{ 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1 }, { 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1 },
+				{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 } };
+
+		loadImages();
+
+		// 모든 0을 2로 변경
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[i].length; j++) {
+				if (map[i][j] == 0) {
+					map[i][j] = 2; // 0을 2로 변경
+				}
+			}
+		}
+		// 랜덤으로 스페셜 아이템 위치 재설정
+		Random random = new Random();
+		int count = 0;
+
+		while (count < 3) {
+			int randomX = random.nextInt(map.length);
+			int randomY = random.nextInt(map[0].length);
+
 			if (map[randomX][randomY] == 2) {
 				map[randomX][randomY] = 3;
 				count++;
@@ -94,7 +131,7 @@ public class GameMap {
 					specialImage.paintIcon(null, g, x * 40, y * 40);
 					break;
 				}
-				
+
 		}
 	}
 

@@ -13,6 +13,7 @@ public class Pacman {
 	private int x;
 	private int y;
 	private Image image; // 현재 방향 팩맨 이미지 변수
+	private Image originalImage;
 	private String direction; // 현재 방향 저장할 변수
 	private GameMap gameMap; // 맵 흐르에 따른 변화 감지
 	private GamePanel gamePanel;
@@ -29,7 +30,8 @@ public class Pacman {
 
 	// 이미지 로드
 	private void loadImages() {
-		image = new ImageIcon(getClass().getResource("/images/pacman.png")).getImage();
+		originalImage = new ImageIcon(getClass().getResource("/images/pacman.png")).getImage();
+		image = originalImage;
 	}
 
 	// 키 입력 처리 메소드
@@ -81,8 +83,12 @@ public class Pacman {
 	}
 
 	public void move() {
-		// 벽과 충돌 하지 않도록 이동
+		// 방향이 none일 경우 이동하지 않음
+		if (direction.equals("none")) {
+			return;
+		}
 
+		// 벽과 충돌 하지 않도록 이동
 		int newX = x, newY = y;
 
 		switch (direction) {
@@ -134,6 +140,17 @@ public class Pacman {
 	public void resetPosition() {
 		x = 8;
 		y = 7;
+	}
+
+	// 24.11.01
+	// 재시작시 팩맨 방향 초기화
+	public void resetDirection() {
+		direction = "none";
+		image = originalImage;
+	}
+
+	public void stop() {
+		this.direction = "none";
 	}
 
 }

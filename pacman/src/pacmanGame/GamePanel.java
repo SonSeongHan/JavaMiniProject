@@ -66,15 +66,14 @@ class GamePanel extends JPanel implements ActionListener {
 		addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) { // 키가 눌렸을 때
 
-				// 스페이스바로 게임 시작
-				if (!gameStarted && e.getKeyCode() == KeyEvent.VK_SPACE) {
+				// 스페이스바로 게임 시작 또는 재시작
+				if ((gameOver || gameClear) && e.getKeyCode() == KeyEvent.VK_SPACE) {
+					restartGame();
+				} else if (!gameStarted && e.getKeyCode() == KeyEvent.VK_SPACE) {
 					gameStarted = true;
 					pacmanTimer.start();
 					ghostTimer.start();
-				}
-				if (gameStarted) {
-					pacman.handleKeyPress(e);
-
+				} else if (gameStarted) {
 					pacman.handleKeyPress(e);
 					if (gameMap.collectSpecial(pacman.getX(), pacman.getY())) {
 						startSpecialEffect();
@@ -82,6 +81,21 @@ class GamePanel extends JPanel implements ActionListener {
 				}
 			}
 		});
+//				if (!gameStarted && e.getKeyCode() == KeyEvent.VK_SPACE) {
+//					gameStarted = true;
+//					pacmanTimer.start();
+//					ghostTimer.start();
+//				}
+//				if (gameStarted) {
+//					pacman.handleKeyPress(e);
+//
+//					pacman.handleKeyPress(e);
+//					if (gameMap.collectSpecial(pacman.getX(), pacman.getY())) {
+//						startSpecialEffect();
+//					}
+//				}
+//			}
+//		});
 
 //		// 게임 스레드 시작
 		// 더 프레임이 끊겨서 타이머로 함
@@ -187,6 +201,31 @@ class GamePanel extends JPanel implements ActionListener {
 
 	}
 
+	// 24.11.01
+	// 재시작 메소드
+	private void restartGame() {
+		score = 0;
+		lives = 3;
+		time = 0;
+		gameOver = false;
+		gameClear = false;
+		gameStarted = false;
+
+		pacman.resetPosition();
+		pacman.resetDirection();
+		pacman.stop();
+		gameMap.resetMap();
+
+		ghosts.clear();
+		ghosts.add(new Ghost(14, 12, gameMap));
+		ghosts.add(new Ghost(1, 1, gameMap));
+		ghosts.add(new Ghost(1, 12, gameMap));
+
+		pacmanTimer.restart();
+		ghostTimer.restart();
+		repaint();
+	}
+
 	// 팩맨과 적 그리기 + map 그리기 추가
 	@Override
 	public void paintComponent(Graphics g) {
@@ -198,7 +237,7 @@ class GamePanel extends JPanel implements ActionListener {
 			g.fillRect(0, 0, getWidth(), getHeight());
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", Font.PLAIN, 30));
-			String startText = "Press Spacebar Key";
+			String startText = "PRESS SPACEBAR TO START";
 			FontMetrics metrics = g.getFontMetrics();
 			int x = (getWidth() - metrics.stringWidth(startText)) / 2;
 			int y = getHeight() / 3;
@@ -213,6 +252,14 @@ class GamePanel extends JPanel implements ActionListener {
 			int x = (getWidth() - metrics.stringWidth(gameClearText)) / 2; // 가운데 정렬
 			int y = getHeight() / 2;
 			g.drawString(gameClearText, x, y);
+
+			// 하단 메시지 추가
+			g.setFont(new Font("Arial", Font.PLAIN, 20));
+			String restartText = "PRESS SPACEBAR TO RESTART";
+			metrics = g.getFontMetrics();
+			x = (getWidth() - metrics.stringWidth(restartText)) / 2;
+			y += 50;
+			g.drawString(restartText, x, y);
 		} else if (gameOver) {
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, getWidth(), getHeight()); // 검은 배경
@@ -223,6 +270,14 @@ class GamePanel extends JPanel implements ActionListener {
 			int x = (getWidth() - metrics.stringWidth(gameOverText)) / 2; // 가운데 정렬
 			int y = getHeight() / 2;
 			g.drawString(gameOverText, x, y);
+
+			// 하단 메시지 추가
+			g.setFont(new Font("Arial", Font.PLAIN, 20));
+			String restartText = "PRESS SPACEBAR TO RESTART";
+			metrics = g.getFontMetrics();
+			x = (getWidth() - metrics.stringWidth(restartText)) / 2;
+			y += 50;
+			g.drawString(restartText, x, y);
 		} else {
 			gameMap.draw(g);
 			pacman.draw(g);
@@ -239,7 +294,5 @@ class GamePanel extends JPanel implements ActionListener {
 				g.drawImage(heart, 650 + (i * 25), +90, 20, 20, null);
 			}
 		}
-
 	}
-
 }
